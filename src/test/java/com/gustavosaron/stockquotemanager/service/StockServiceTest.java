@@ -35,6 +35,8 @@ public class StockServiceTest {
 	private StockRepository stockRepository;
 	@Mock
 	private QuoteRepository quoteRepository;
+	@Mock
+	private StockExternalService stockExternalService;
 	@InjectMocks
 	private StockService service;
 	
@@ -55,6 +57,7 @@ public class StockServiceTest {
 	public void shouldSaveStock_WhenSavingANewStockTest() {
 		when(stockRepository.findByStockId(model.getId())).thenReturn(Optional.empty());
 		when(stockRepository.save(entity)).thenReturn(entity);
+		when(stockExternalService.isValidStock(model.getId())).thenReturn(true);
 		doReturn(entity).when(spyService).toEntity(model);
 		doReturn(model).when(spyService).toModel(entity);
 
@@ -62,9 +65,10 @@ public class StockServiceTest {
 
 		verify(stockRepository).findByStockId(model.getId());
 		verify(stockRepository).save(entity);
+		verify(stockExternalService).isValidStock(model.getId());
 		verify(spyService).toEntity(model);
 		verify(spyService).toModel(entity);
-		verifyNoMoreInteractions(stockRepository);
+		verifyNoMoreInteractions(stockRepository, stockExternalService);
 	}
 	
 	@Test
@@ -84,7 +88,7 @@ public class StockServiceTest {
 	}
 	
 	@Test
-	public void shouldReturnStock_WhenFindingStockByStockIdTest() {
+	public void shouldReturnStock_whenFindingStockByStockIdTest() {
 		when(stockRepository.findByStockId(model.getId())).thenReturn(Optional.of(entity));
 		doReturn(model).when(spyService).toModel(entity);
 

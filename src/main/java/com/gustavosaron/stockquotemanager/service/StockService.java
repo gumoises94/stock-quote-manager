@@ -28,6 +28,8 @@ public class StockService {
 	private StockRepository stockRepository;
 	@Autowired
 	private QuoteRepository quoteRepository;
+	@Autowired
+	private StockExternalService stockExternalService;
 
 	public List<StockQuoteModel> findAll() {
 		List<StockQuoteModel> stocks = new ArrayList<StockQuoteModel>();
@@ -70,7 +72,11 @@ public class StockService {
 			}
 		}
 		else {
+			if(!stockExternalService.isValidStock(stockQuote.getId()))
+				throw new ResourceNotFoundException("Could not find resource with id: " +stockQuote.getId());
+			
 			entity = toEntity(stockQuote);
+			
 		}
 
 		return toModel(stockRepository.save(entity));
